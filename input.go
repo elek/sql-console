@@ -63,6 +63,10 @@ func (t *Textinput) Update(msg tea.Msg) (*Textinput, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		t.Width = msg.Width
+	case tea.PasteMsg:
+		head, c, tail := t.HeadAndTail()
+		t.Text = head + msg.Content + c + tail
+		t.pos += len(msg.Content)
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, DefaultKeyMap.DeleteCharacterBackward):
