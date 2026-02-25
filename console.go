@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 )
 
 func Loop(prompt string, f func(string), db DatabaseClient) error {
@@ -65,14 +65,14 @@ func (i *Input) Init() tea.Cmd {
 
 func (i *Input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter:
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		case "enter":
 			return i, tea.Quit
-		case tea.KeyCtrlQ:
+		case "ctrl+q":
 			i.stop = true
 			return i, tea.Quit
-		case tea.KeyCtrlC:
+		case "ctrl+c":
 			if i.textinput.Value() == "" {
 				i.stop = true
 				return i, tea.Quit
@@ -80,10 +80,10 @@ func (i *Input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				i.textinput.SetValue("")
 				return i, nil
 			}
-		case tea.KeyEsc:
+		case "escape":
 			i.stop = true
 			return i, tea.Quit
-		case tea.KeyUp:
+		case "up":
 			if i.historyIdx == -1 {
 				i.historyIdx = len(i.history)
 			}
@@ -93,7 +93,7 @@ func (i *Input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if len(i.history) > 0 {
 				i.textinput.SetValue(i.history[i.historyIdx])
 			}
-		case tea.KeyDown:
+		case "down":
 			switch {
 			case i.historyIdx == -1:
 			case i.historyIdx < len(i.history)-1:
@@ -112,8 +112,8 @@ func (i *Input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return i, cmd
 }
 
-func (i *Input) View() string {
-	return i.textinput.View() + "\n"
+func (i *Input) View() tea.View {
+	return tea.NewView(i.textinput.View() + "\n")
 }
 
 var _ tea.Model = &Input{}

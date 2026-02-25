@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/cursor"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 	"unicode"
 )
@@ -63,7 +63,7 @@ func (t *Textinput) Update(msg tea.Msg) (*Textinput, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		t.Width = msg.Width
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, DefaultKeyMap.DeleteCharacterBackward):
 			tail, c, head := t.HeadAndTail()
@@ -114,7 +114,7 @@ func (t *Textinput) Update(msg tea.Msg) (*Textinput, tea.Cmd) {
 			}
 		default:
 			var filtered []rune
-			for _, r := range msg.Runes {
+			for _, r := range msg.Text {
 				if unicode.IsPrint(r) {
 					filtered = append(filtered, r)
 				}
