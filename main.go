@@ -28,7 +28,7 @@ type Cli struct {
 	SpannerInstance string        `name:"spanner" help:"Spanner instance, in the form of projects/{project}/instances/{instance}/databases/{database} or {project}/{instance}/{database}"`
 	BigQueryProject string        `name:"bigquery" help:"BigQuery project ID"`
 	Transaction     bool          `name:"transaction" short:"t" help:"Execute all queries in a single transaction"`
-	OutputFormat    string        `name:"format" short:"f" help:"Output format (table|csv)" default:"table" enum:"table,csv"`
+	OutputFormat    string        `name:"format" short:"f" help:"Output format (table|csv|json)" default:"table" enum:"table,csv,json"`
 	Staleness       time.Duration `name:"staleness" help:"Staleness duration for Spanner stale reads (e.g. 10s, 1m)"`
 	ExactTimestamp  string        `name:"exact-timestamp" help:"Exact timestamp for Spanner stale reads (RFC3339 format, e.g. 2006-01-02T15:04:05Z)"`
 }

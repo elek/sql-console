@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"os"
@@ -16,6 +17,8 @@ const (
 	TableFormat OutputFormat = "table"
 	// CSVFormat represents the CSV output format
 	CSVFormat OutputFormat = "csv"
+	// JSONFormat represents the JSON output format
+	JSONFormat OutputFormat = "json"
 )
 
 // ResultWriter interface for writing query results
@@ -25,36 +28,58 @@ type ResultWriter interface {
 	Render()
 }
 
-// TableWriter implements ResultWriter using table format
+// TableWriter implements ResultWriter using table format.
+// Header and rows are buffered so that, at render time, a single-row result
+// can be transposed into a more readable key|value layout.
 type TableWriter struct {
-	writer table.Writer
+	columns []string
+	rows    [][]interface{}
 }
 
 // NewTableWriter creates a new TableWriter
 func NewTableWriter() ResultWriter {
-	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
-	return &TableWriter{writer: t}
+	return &TableWriter{}
 }
 
 func (t *TableWriter) SetHeader(columns []string) {
-	header := make(table.Row, len(columns))
-	for i, col := range columns {
-		header[i] = col
-	}
-	t.writer.AppendHeader(header)
+	t.columns = columns
 }
 
 func (t *TableWriter) AppendRow(row []interface{}) {
-	tableRow := make(table.Row, len(row))
-	for i, val := range row {
-		tableRow[i] = val
-	}
-	t.writer.AppendRow(tableRow)
+	t.rows = append(t.rows, row)
 }
 
 func (t *TableWriter) Render() {
-	t.writer.Render()
+	tw := table.NewWriter()
+	tw.SetOutputMirror(os.Stdout)
+
+	if len(t.rows) == 1 {
+		// Single result: render one column per row as a key|value table.
+		tw.AppendHeader(table.Row{"Column", "Value"})
+		row := t.rows[0]
+		for i, col := range t.columns {
+			var val interface{}
+			if i < len(row) {
+				val = row[i]
+			}
+			tw.AppendRow(table.Row{col, val})
+		}
+	} else {
+		header := make(table.Row, len(t.columns))
+		for i, col := range t.columns {
+			header[i] = col
+		}
+		tw.AppendHeader(header)
+		for _, row := range t.rows {
+			tableRow := make(table.Row, len(row))
+			for i, val := range row {
+				tableRow[i] = val
+			}
+			tw.AppendRow(tableRow)
+		}
+	}
+
+	tw.Render()
 }
 
 // CSVWriter implements ResultWriter using CSV format
@@ -89,6 +114,37 @@ func (c *CSVWriter) Render() {
 	c.writer.Flush()
 }
 
+// JSONWriter implements ResultWriter using JSON format
+type JSONWriter struct {
+	columns []string
+	rows    []map[string]interface{}
+}
+
+// NewJSONWriter creates a new JSONWriter
+func NewJSONWriter() ResultWriter {
+	return &JSONWriter{}
+}
+
+func (j *JSONWriter) SetHeader(columns []string) {
+	j.columns = columns
+}
+
+func (j *JSONWriter) AppendRow(row []interface{}) {
+	obj := make(map[string]interface{}, len(j.columns))
+	for i, val := range row {
+		if i < len(j.columns) {
+			obj[j.columns[i]] = val
+		}
+	}
+	j.rows = append(j.rows, obj)
+}
+
+func (j *JSONWriter) Render() {
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "  ")
+	encoder.Encode(j.rows)
+}
+
 // stringify converts any value to a string representation
 func stringify(val interface{}) string {
 	if val == nil {
@@ -99,10 +155,14 @@ func stringify(val interface{}) string {
 
 // GetResultWriter returns the appropriate ResultWriter based on format
 func GetResultWriter(format string) ResultWriter {
-	if format == string(CSVFormat) {
+	switch format {
+	case string(CSVFormat):
 		return NewCSVWriter()
+	case string(JSONFormat):
+		return NewJSONWriter()
+	default:
+		return NewTableWriter()
 	}
-	return NewTableWriter()
 }
 
 // DatabaseClient defines the interface for database operations
