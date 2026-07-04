@@ -125,12 +125,12 @@ func (c *Cli) Run() error {
 		
 		var exactTimestamp time.Time
 		var useExactTimestamp bool
-		
+
 		if c.ExactTimestamp != "" {
 			var err error
-			exactTimestamp, err = time.Parse(time.RFC3339, c.ExactTimestamp)
+			exactTimestamp, err = parseExactTimestamp(c.ExactTimestamp, time.Now())
 			if err != nil {
-				return errors.Wrap(err, "Invalid exact timestamp format. Please use RFC3339 format (e.g. 2006-01-02T15:04:05Z)")
+				return err
 			}
 			useExactTimestamp = true
 		}
