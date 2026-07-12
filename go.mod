@@ -9,6 +9,7 @@ require (
 	cloud.google.com/go/spanner v1.73.0
 	github.com/alecthomas/kong v1.4.0
 	github.com/charmbracelet/x/ansi v0.11.6
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/jedib0t/go-pretty/v6 v6.6.1
 	github.com/pkg/errors v0.9.1
@@ -25,6 +26,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	cloud.google.com/go/iam v1.2.2 // indirect
 	cloud.google.com/go/monitoring v1.21.2 // indirect
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp v1.5.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.24.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect

@@ -1,4 +1,4 @@
-Simple (and limited) SQL console for Google Spanner, Google BigQuery, and PostgreSQL.
+Simple (and limited) SQL console for Google Spanner, Google BigQuery, PostgreSQL, and TiDB.
 
 Usage:
 
@@ -22,6 +22,10 @@ sql-console --bigquery=my_project
 sql-console --postgres="postgres://user:pass@host:5432/db"
 ```
 
+```
+sql-console --tidb="user:pass@tcp(host:4000)/dbname"
+```
+
 You can also pipe SQL commands:
 
 ```
@@ -30,7 +34,7 @@ cat /tmp/foo.sql | sql-console --spanner=...
 
 Connection aliases can be stored in `~/.config/sql-console/alias`, one per line
 as `NAME TYPE CONNECTION-STRING` (type is one of `spanner`, `bigquery`,
-`postgres`), then used as `sql-console NAME`.
+`postgres`, `tidb`), then used as `sql-console NAME`.
 
 Options:
 
