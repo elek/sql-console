@@ -27,6 +27,7 @@ type Cli struct {
 	Alias           string        `arg:"" optional:"" help:"Alias name from ~/.config/sql-console/alias"`
 	SpannerInstance string        `name:"spanner" help:"Spanner instance, in the form of projects/{project}/instances/{instance}/databases/{database} or {project}/{instance}/{database}"`
 	BigQueryProject string        `name:"bigquery" help:"BigQuery project ID"`
+	Postgres        string        `name:"postgres" help:"PostgreSQL connection string (URL or DSN, e.g. postgres://user:pass@host:5432/db)"`
 	Transaction     bool          `name:"transaction" short:"t" help:"Execute all queries in a single transaction"`
 	OutputFormat    string        `name:"format" short:"f" help:"Output format (table|csv|json)" default:"table" enum:"table,csv,json"`
 	Staleness       time.Duration `name:"staleness" help:"Staleness duration for Spanner stale reads (e.g. 10s, 1m)"`
@@ -79,8 +80,8 @@ func (c *Cli) Run() error {
 
 	// Resolve alias if provided
 	if c.Alias != "" {
-		if c.SpannerInstance != "" || c.BigQueryProject != "" {
-			return errors.New("Cannot specify both alias and --spanner/--bigquery flags")
+		if c.SpannerInstance != "" || c.BigQueryProject != "" || c.Postgres != "" {
+			return errors.New("Cannot specify both alias and --spanner/--bigquery/--postgres flags")
 		}
 		dbType, connStr, err := resolveAlias(c.Alias)
 		if err != nil {
@@ -91,6 +92,8 @@ func (c *Cli) Run() error {
 			c.SpannerInstance = connStr
 		case "bigquery":
 			c.BigQueryProject = connStr
+		case "postgres":
+			c.Postgres = connStr
 		default:
 			return errors.Errorf("unknown database type %q for alias %q", dbType, c.Alias)
 		}
@@ -99,8 +102,18 @@ func (c *Cli) Run() error {
 	var dbClient DatabaseClient
 	var err error
 
-	if c.SpannerInstance != "" && c.BigQueryProject != "" {
-		return errors.New("Cannot specify both --spanner and --bigquery")
+	specified := 0
+	if c.SpannerInstance != "" {
+		specified++
+	}
+	if c.BigQueryProject != "" {
+		specified++
+	}
+	if c.Postgres != "" {
+		specified++
+	}
+	if specified > 1 {
+		return errors.New("Cannot specify more than one of --spanner, --bigquery, --postgres")
 	}
 
 	if c.SpannerInstance != "" {
@@ -138,8 +151,10 @@ func (c *Cli) Run() error {
 		dbClient, err = NewSpannerClient(ctx, c.SpannerInstance, prompt, c.Staleness, exactTimestamp, useExactTimestamp)
 	} else if c.BigQueryProject != "" {
 		dbClient, err = NewBigQueryClient(ctx, c.BigQueryProject)
+	} else if c.Postgres != "" {
+		dbClient, err = NewPostgresClient(ctx, c.Postgres)
 	} else {
-		return errors.New("Either --spanner or --bigquery must be specified")
+		return errors.New("One of --spanner, --bigquery or --postgres must be specified")
 	}
 
 	if err != nil {

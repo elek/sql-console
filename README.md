@@ -1,4 +1,4 @@
-Simple (and limited) SQL console for Google Spanner and BigQuery.
+Simple (and limited) SQL console for Google Spanner, Google BigQuery, and PostgreSQL.
 
 Usage:
 
@@ -18,15 +18,23 @@ or:
 sql-console --bigquery=my_project
 ```
 
+```
+sql-console --postgres="postgres://user:pass@host:5432/db"
+```
+
 You can also pipe SQL commands:
 
 ```
 cat /tmp/foo.sql | sql-console --spanner=...
 ```
 
+Connection aliases can be stored in `~/.config/sql-console/alias`, one per line
+as `NAME TYPE CONNECTION-STRING` (type is one of `spanner`, `bigquery`,
+`postgres`), then used as `sql-console NAME`.
+
 Options:
 
-- `--format` or `-f`: Output format (table|csv), default is table
+- `--format` or `-f`: Output format (table|csv|json), default is table
 - `--transaction` or `-t`: Execute all queries in a single transaction
 - `--staleness`: Staleness duration for Spanner stale reads (e.g. 10s, 1m)
 
