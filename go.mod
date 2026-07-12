@@ -1,4 +1,4 @@
-module github.com/elek/spanner-console
+module github.com/elek/sql-console
 
 go 1.24.2
 

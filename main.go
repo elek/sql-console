@@ -24,7 +24,7 @@ func main() {
 }
 
 type Cli struct {
-	Alias           string        `arg:"" optional:"" help:"Alias name from ~/.config/spanner-console/alias"`
+	Alias           string        `arg:"" optional:"" help:"Alias name from ~/.config/sql-console/alias"`
 	SpannerInstance string        `name:"spanner" help:"Spanner instance, in the form of projects/{project}/instances/{instance}/databases/{database} or {project}/{instance}/{database}"`
 	BigQueryProject string        `name:"bigquery" help:"BigQuery project ID"`
 	Transaction     bool          `name:"transaction" short:"t" help:"Execute all queries in a single transaction"`
@@ -36,7 +36,7 @@ type Cli struct {
 // Store outputFormat as a global variable for all DB clients to access
 var outputFormat string
 
-// resolveAlias looks up an alias in ~/.config/spanner-console/alias
+// resolveAlias looks up an alias in ~/.config/sql-console/alias
 // Returns (type, connection-string, error)
 func resolveAlias(alias string) (string, string, error) {
 	home, err := os.UserHomeDir()
@@ -44,7 +44,7 @@ func resolveAlias(alias string) (string, string, error) {
 		return "", "", errors.Wrap(err, "failed to get home directory")
 	}
 
-	aliasPath := filepath.Join(home, ".config", "spanner-console", "alias")
+	aliasPath := filepath.Join(home, ".config", "sql-console", "alias")
 	file, err := os.Open(aliasPath)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to open alias file")

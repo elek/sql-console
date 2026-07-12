@@ -1,4 +1,4 @@
-project_name: spanner-console
+project_name: sql-console
 archives:
  - id: default
    format: binary

@@ -33,7 +33,7 @@ var _ DatabaseClient = (*SpannerClient)(nil)
 func NewSpannerClient(ctx context.Context, connectionString string, prompt string, staleness time.Duration, exactTimestamp time.Time, useExactTimestamp bool) (*SpannerClient, error) {
 	client, err := spanner.NewClientWithConfig(ctx, connectionString, spanner.ClientConfig{
 		SessionPoolConfig:    spanner.DefaultSessionPoolConfig,
-		SessionLabels:        map[string]string{"application_name": "spanner-console"},
+		SessionLabels:        map[string]string{"application_name": "sql-console"},
 		DisableRouteToLeader: false,
 	})
 	if err != nil {

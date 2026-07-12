@@ -3,25 +3,25 @@ Simple (and limited) SQL console for Google Spanner and BigQuery.
 Usage:
 
 ```
-spanner-console --spanner=my_proect/my_instance/my_db
+sql-console --spanner=my_proect/my_instance/my_db
 ```
 
 or:
 
 ```
-spanner-console --spanner=projects/my_proect/instances/my_instance/databases/my_db
+sql-console --spanner=projects/my_proect/instances/my_instance/databases/my_db
 ```
 
 or:
 
 ```
-spanner-console --bigquery=my_project
+sql-console --bigquery=my_project
 ```
 
 You can also pipe SQL commands:
 
 ```
-cat /tmp/foo.sql | spanner-console --spanner=...
+cat /tmp/foo.sql | sql-console --spanner=...
 ```
 
 Options:
@@ -33,5 +33,5 @@ Options:
 Example with CSV output:
 
 ```
-spanner-console --spanner=my_project/my_instance/my_db --format=csv
+sql-console --spanner=my_project/my_instance/my_db --format=csv
 ```
